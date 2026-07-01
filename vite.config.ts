@@ -5,6 +5,8 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
+    {
+    base: '/nayenroman-c/202604-SelloCiberseguridaad/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
