@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Remix: Remix: Sello de Ciberseguridad Codelco",
+  "description": "Sistema de Gestión del Sello de Ciberseguridad para Codelco, basado en el Formulario DAC y flujos oficiales.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

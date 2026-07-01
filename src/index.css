@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Montserrat", sans-serif;
+  
+  /* Codelco Graphic Norms 2015 Colors */
+  --color-cobre: #BB5726;
+  --color-cobre-oscuro: #9B3F0E;
+  --color-granate: #8B0000;
+  --color-verde-petroleo: #004E59;
+  --color-azul: #2C73B5;
+  --color-gris-azulado: #374752;
+  --color-secundario: #50606C;
+  --color-oro: #F4A700;
+  --color-crema: #C8B499;
+  
+  /* Surfaces and Accents */
+  --color-surface-custom: #FFF8F3;
+  --color-surface-dim-custom: #ECD7BA;
+  --color-surface-container-custom: #FFEBD1;
+  --color-surface-container-low: #FFF2E3;
+  --color-surface-container-high: #FBE5C8;
+  --color-surface-variant-custom: #F5DFC3;
+}
+
+/* Base custom classes to match Codelco typography norms */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Montserrat", sans-serif;
+  text-transform: uppercase;
+}
+
+/* Material Symbols Outlined Fallback CSS Class Definition */
+.material-icons-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbars custom */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FFF8F3;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ECD7BA;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #BB5726;
+}
