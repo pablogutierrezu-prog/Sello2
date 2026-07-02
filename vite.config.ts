@@ -4,7 +4,7 @@ import path from 'path';
 import {defineConfig} from 'vite';
 
 export default defineConfig(() => ({
-    base: '/nayenroman-c/202604-SelloCiberseguridaad/',
+    base: '/',
     plugins: [react(), tailwindcss()],
     resolve: {
     alias: { '@': path.resolve(__dirname, '.') },
