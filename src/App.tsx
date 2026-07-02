@@ -285,14 +285,14 @@ export default function App() {
       {/* BODY AREA */}
       <div className="flex flex-1 relative overflow-hidden" id="app-body">
         {/* SIDEBAR NAVIGATION COMPONENT */}
-        {(currentView !== 'formularios' || isMobileSidebarOpen) && (
+        {((currentView !== 'formularios' && currentView !== 'licitaciones') || isMobileSidebarOpen) && (
           <Sidebar
             currentView={currentView}
             onViewChange={setCurrentView}
             currentRole={currentRole}
             isMobileOpen={isMobileSidebarOpen}
             onCloseMobile={() => setIsMobileSidebarOpen(false)}
-            hideOnDesktop={currentView === 'formularios'}
+            hideOnDesktop={currentView === 'formularios' || currentView === 'licitaciones'}
           />
         )}
 
