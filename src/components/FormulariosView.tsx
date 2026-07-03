@@ -206,26 +206,11 @@ export default function FormulariosView({
     ];
   }, [currentRole]);
 
-  // Filter sections based on the current user role from the Excel user stories matrix (Sello en Procesos de Implementación y Operación)
+  // Todas las secciones son visibles para todos los roles.
+  // El control de edición vs solo lectura se maneja dentro de cada sección.
   const visibleSections = useMemo(() => {
-    return sections.filter(sec => {
-      switch (sec.id) {
-        case '0': return ['JP', 'RESP_GESTION', 'ADMIN'].includes(currentRole);
-        case '1': return ['JP', 'ADMIN'].includes(currentRole);
-        case '2': return ['JP', 'ADMIN'].includes(currentRole);
-        case '2.1': return ['JP', 'RESP_ARQUITECTO_SEG', 'ADMIN'].includes(currentRole);
-        case '3': return ['JP', 'ADMIN'].includes(currentRole);
-        case '4': return ['JP', 'RESP_GESTION', 'ADMIN', 'RESP_PRESUPUESTO_EY', 'RESP_EVAL_TECNICA_EY', 'RESP_EVAL_DOC_EY'].includes(currentRole);
-        case '5': return ['RESP_GESTION', 'ADMIN'].includes(currentRole);
-        case '6': return ['JP', 'GERENTE_APROBADORA', 'RESP_PRESUPUESTO_EY', 'ADMIN'].includes(currentRole);
-        case '6.1': return ['JP', 'RESP_GESTION', 'GERENTE_APROBADORA', 'ADMIN'].includes(currentRole);
-        case '7': return ['JP', 'RESP_GESTION', 'ADMIN', 'RESP_PRESUPUESTO_EY', 'RESP_EVAL_TECNICA_EY', 'RESP_EVAL_DOC_EY'].includes(currentRole);
-        case '8': return ['RESP_GESTION', 'ADMIN'].includes(currentRole);
-        case '9': return ['RESP_GESTION', 'ADMIN'].includes(currentRole);
-        default: return true;
-      }
-    });
-  }, [sections, currentRole]);
+    return sections;
+  }, [sections]);
 
   // Adjust activeSection dynamically when the user switches role
   useEffect(() => {
