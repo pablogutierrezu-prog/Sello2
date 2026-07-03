@@ -78,25 +78,21 @@ export default function Sidebar({
                     onViewChange(item.id);
                     if (onCloseMobile) onCloseMobile();
                   }}
-                  className={`w-full flex items-center text-left px-6 py-3.5 text-xs font-semibold uppercase tracking-wider font-display border-l-4 transition-all duration-250 focus:outline-none cursor-pointer group ${
+                  className={`w-full flex items-center text-left px-6 py-3.5 text-xs font-semibold uppercase tracking-wider font-display border-l-4 transition-all focus:outline-none cursor-pointer ${
                     isActive
-                      ? 'border-cobre text-cobre bg-surface-container-custom/50 font-extrabold shadow-sm'
-                      : 'border-transparent text-gris-azulado/85 hover:text-cobre hover:bg-surface-custom/60 hover:border-l-cobre/30'
+                      ? 'border-cobre text-cobre bg-surface-container-custom/40 font-bold'
+                      : 'border-transparent text-gris-azulado/80 hover:text-cobre hover:bg-surface-custom/50'
                   }`}
                 >
                   <Icon
-                    className={`mr-3.5 h-5 w-5 shrink-0 transition-all duration-300 ${
-                      isActive 
-                        ? 'text-cobre scale-110 drop-shadow-[0_2px_4px_rgba(187,87,38,0.2)]' 
-                        : 'text-gris-azulado/60 group-hover:scale-110 group-hover:text-cobre'
+                    className={`mr-3.5 h-5 w-5 shrink-0 transition-transform ${
+                      isActive ? 'text-cobre scale-110' : 'text-gris-azulado/60 group-hover:scale-105'
                     }`}
                   />
                   <div className="flex-1 flex items-center justify-between min-w-0">
-                    <span className={`truncate transition-colors ${isActive ? 'font-extrabold' : 'group-hover:translate-x-1 duration-200'}`}>
-                      {item.label}
-                    </span>
+                    <span className="truncate">{item.label}</span>
                     {item.id === 'formularios' && (
-                      <span className="ml-2 shrink-0 px-2 py-0.5 text-[8px] font-extrabold bg-cobre text-white rounded-xs uppercase tracking-widest animate-pulse shadow-xs">
+                      <span className="ml-2 shrink-0 px-1.5 py-0.5 text-[8px] font-bold bg-cobre text-white rounded-xs uppercase tracking-widest animate-pulse">
                         ACTIVO
                       </span>
                     )}

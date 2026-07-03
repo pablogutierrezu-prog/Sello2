@@ -30,11 +30,7 @@ export type DacState =
   | 'RESULTADO EMITIDO'
   | 'EN EVALUACIÓN DOCUMENTAL'
   | 'RESULTADO POR PROVEEDOR GENERADO'
-  | 'RESULTADO LICITACIÓN APROBADO'
-  | 'APROBADO POR GERENCIA'
-  | 'DEVUELTO PARA CORRECCIÓN'
-  | 'APROBADO POR JP'
-  | 'CERRADO';
+  | 'RESULTADO LICITACIÓN APROBADO';
 
 export type FindingState =
   | 'NUEVO'
@@ -93,10 +89,6 @@ export interface Finding {
   evidences: Evidence[];
   comments: Comment[];
   logs: Log[];
-  intention?: 'REMEDIAR' | 'NO_REMEDIAR' | 'NO_APLICA';
-  systemsAffected?: string;
-  createdBy?: string;
-  waiverLetterLoaded?: boolean;
 }
 
 export interface SupplierEvaluation {

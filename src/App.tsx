@@ -265,16 +265,6 @@ export default function App() {
     }));
   };
 
-  // Generic finding fields updater
-  const handleUpdateFindingFields = (id: string, fields: Partial<Finding>) => {
-    setFindings(prev => prev.map(f => {
-      if (f.id === id) {
-        return { ...f, ...fields };
-      }
-      return f;
-    }));
-  };
-
   // Clear notification helper
   const handleClearNotification = (id: string) => {
     setNotifications(notifications.filter(n => n.id !== id));
@@ -295,14 +285,14 @@ export default function App() {
       {/* BODY AREA */}
       <div className="flex flex-1 relative overflow-hidden" id="app-body">
         {/* SIDEBAR NAVIGATION COMPONENT */}
-        {(currentView !== 'formularios' || isMobileSidebarOpen) && (
+        {((currentView !== 'formularios' && currentView !== 'licitaciones') || isMobileSidebarOpen) && (
           <Sidebar
             currentView={currentView}
             onViewChange={setCurrentView}
             currentRole={currentRole}
             isMobileOpen={isMobileSidebarOpen}
             onCloseMobile={() => setIsMobileSidebarOpen(false)}
-            hideOnDesktop={currentView === 'formularios'}
+            hideOnDesktop={currentView === 'formularios' || currentView === 'licitaciones'}
           />
         )}
 
@@ -349,7 +339,6 @@ export default function App() {
               onAddFindingEvidence={handleAddFindingEvidence}
               onUpdateFindingPlan={handleUpdateFindingPlan}
               onAddFindingLog={handleAddFindingLog}
-              onUpdateFindingFields={handleUpdateFindingFields}
             />
           )}
 

@@ -91,7 +91,7 @@ export const INITIAL_DACS: DacRequest[] = [
     durationMonths: 36,
     budgetEstimate: 1200000,
     justification: 'Garantizar la continuidad operacional y el resguardo de la información crítica de la corporación frente a incidentes de ransomware u otros desastres.',
-    state: 'INFORME ENTREGADO',
+    state: 'EN EVALUACIÓN DOCUMENTAL',
     docHistory: [
       { id: 'h3', name: 'Terminos_Referencia_Backup.pdf', date: '2026-06-10 14:30', state: 'Aprobado', action: 'Subido por Revisor' }
     ],
