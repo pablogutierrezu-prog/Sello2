@@ -205,8 +205,7 @@ export default function FormulariosView({
     ];
   }, []);
 
-  // Filter sections based on the current user role from the Excel user stories matrix
-  // Transversal rule: All sections are always visible to all roles as read-only, except for restricted editing
+
   const visibleSections = useMemo(() => {
     return sections;
   }, [sections]);
