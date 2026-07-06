@@ -141,6 +141,18 @@ export default function FormulariosView({
       dataFlowDesc: dacForm.dataFlowDesc || 'Intercambio de datos transaccionales mediante HTTPS. No se accede a redes de control de procesos (OT).',
       architectureEvaluation: dacForm.architectureEvaluation || 'Verde',
 
+      // AI & Personal Data Compliance fields (June 2026 update)
+      technologyType: dacForm.technologyType || 'Web',
+      useOfAI_validated: dacForm.useOfAI_validated || 'No',
+      useOfAI_type: dacForm.useOfAI_type || 'IA Generativa (LLM)',
+      useOfAI_impact: dacForm.useOfAI_impact || 'Apoyo informativo',
+      useOfAI_personalData: dacForm.useOfAI_personalData || 'No',
+      useOfAI_desc: dacForm.useOfAI_desc || 'Uso de un LLM comercial para resúmenes de minutas de reunión corporativas.',
+      hasPersonalData: dacForm.hasPersonalData || 'No',
+      personalDataCategory: dacForm.personalDataCategory || ['Identificación (Nombre, Correo)'],
+      personalDataStorage: dacForm.personalDataStorage || 'Cloud',
+      personalDataConsent: dacForm.personalDataConsent || 'Sí',
+
       // Section 3
       kickoffDate: dacForm.kickoffDate || '2026-06-18',
       kickoffHour: dacForm.kickoffHour || '10:30',
@@ -177,56 +189,27 @@ export default function FormulariosView({
 
   // Sections details precisely matching the sheets tabs of the Excel document
   const sections = useMemo(() => {
-    const isUnlocked = ['RESP_PRESUPUESTO_EY', 'RESP_EVAL_TECNICA_EY', 'RESP_EVAL_DOC_EY', 'ADMIN'].includes(currentRole);
     return [
       { id: '0', label: '0. Inicio', state: 'complete', icon: HelpCircle },
       { id: '1', label: '1. Descripción solicitud', state: 'complete', icon: FileText },
       { id: '2', label: '2. Arquitectura de Seg.', state: 'complete', icon: Server },
       { id: '2.1', label: '2.1 Diagrama de Arq. Seg.', state: 'complete', icon: Network },
       { id: '3', label: '3. Kick-Off', state: 'complete', icon: Calendar },
-      { id: '4', label: '4. Matriz de Decisión', state: isUnlocked ? 'active' : 'locked', locked: isUnlocked ? false : true, icon: isUnlocked ? FileText : Lock },
+      { id: '4', label: '4. Matriz de Decisión', state: 'active', icon: FileText },
       { id: '5', label: '5. Controles de Seguridad', state: 'active', icon: Shield },
       { id: '6', label: '6. Presupuesto Servicio', state: 'pending', icon: DollarSign },
       { id: '6.1', label: '6.1 Presupuesto Retest', state: 'pending', icon: FileSpreadsheet },
-      { id: '7', label: '7. Consideraciones y SLAs', state: isUnlocked ? 'active' : 'locked', locked: isUnlocked ? false : true, icon: isUnlocked ? Clock : Lock },
+      { id: '7', label: '7. Consideraciones y SLAs', state: 'active', icon: Clock },
       { id: '8', label: '8. Resolución', state: 'pending', icon: Briefcase },
       { id: '9', label: '9. Anexos (Sellos)', state: 'pending', icon: Layers }
     ];
-  }, [currentRole]);
+  }, []);
 
-  // Filter sections based on the current user role from the Excel user stories matrix (Sello en Procesos de Implementación y Operación)
+  // Filter sections based on the current user role from the Excel user stories matrix
+  // Transversal rule: All sections are always visible to all roles as read-only, except for restricted editing
   const visibleSections = useMemo(() => {
-    return sections.filter(sec => {
-      switch (sec.id) {
-        case '0': // 0. Inicio -> HU-01, HU-02, HU-03 (JP, RESP_GESTION)
-          return ['JP', 'RESP_GESTION', 'ADMIN'].includes(currentRole);
-        case '1': // 1. Descripción solicitud -> HU-04 (JP)
-          return ['JP', 'ADMIN'].includes(currentRole);
-        case '2': // 2. Arquitectura de Seg. -> HU-04 (JP)
-          return ['JP', 'ADMIN'].includes(currentRole);
-        case '2.1': // 2.1 Diagrama de Arq. Seg. -> HU-05 (JP, RESP_ARQUITECTO_SEG)
-          return ['JP', 'RESP_ARQUITECTO_SEG', 'ADMIN'].includes(currentRole);
-        case '3': // 3. Kick-Off -> HU-06 (JP)
-          return ['JP', 'ADMIN'].includes(currentRole);
-        case '4': // 4. Matriz de Decisión -> HU-08 (JP, RESP_GESTION) + EY roles
-          return ['JP', 'RESP_GESTION', 'ADMIN', 'RESP_PRESUPUESTO_EY', 'RESP_EVAL_TECNICA_EY', 'RESP_EVAL_DOC_EY'].includes(currentRole);
-        case '5': // 5. Controles de Seguridad -> HU-09 (RESP_GESTION)
-          return ['RESP_GESTION', 'ADMIN'].includes(currentRole);
-        case '6': // 6. Presupuesto Servicio -> HU-10 (JP, GERENTE_APROBADORA, RESP_PRESUPUESTO_EY)
-          return ['JP', 'GERENTE_APROBADORA', 'RESP_PRESUPUESTO_EY', 'ADMIN'].includes(currentRole);
-        case '6.1': // 6.1 Presupuesto Retest -> HU-13 (JP, RESP_GESTION, GERENTE_APROBADORA)
-          return ['JP', 'RESP_GESTION', 'GERENTE_APROBADORA', 'ADMIN'].includes(currentRole);
-        case '7': // 7. Consideraciones y SLAs -> HU-07 (JP, RESP_GESTION) + EY roles
-          return ['JP', 'RESP_GESTION', 'ADMIN', 'RESP_PRESUPUESTO_EY', 'RESP_EVAL_TECNICA_EY', 'RESP_EVAL_DOC_EY'].includes(currentRole);
-        case '8': // 8. Resolución -> HU-14 (RESP_GESTION)
-          return ['RESP_GESTION', 'ADMIN'].includes(currentRole);
-        case '9': // 9. Anexos (Sellos) -> HU-16 (RESP_GESTION)
-          return ['RESP_GESTION', 'ADMIN'].includes(currentRole);
-        default:
-          return true;
-      }
-    });
-  }, [sections, currentRole]);
+    return sections;
+  }, [sections]);
 
   // Adjust activeSection dynamically when the user switches role
   useEffect(() => {
@@ -350,7 +333,7 @@ export default function FormulariosView({
   }
 
   return (
-    <div className="flex flex-col lg:flex-row h-[calc(100vh-4rem)] w-full overflow-hidden text-xs bg-gray-50" id="formularios-view">
+    <div className="flex flex-col lg:flex-row h-[calc(100vh-4rem)] w-full overflow-hidden text-xs bg-gray-50 relative" id="formularios-view">
       
       {/* Mobile view indicator & toggle */}
       <div className="lg:hidden bg-white border-b border-crema/20 p-4 flex items-center justify-between shadow-xs shrink-0 w-full" id="formularios-mobile-bar">
@@ -371,7 +354,11 @@ export default function FormulariosView({
       </div>
 
       {/* LEFT COLUMN: Section Steps Guide */}
-      <div className={`${mobileSectionsOpen ? 'flex' : 'hidden'} lg:flex w-full lg:w-72 bg-white border-b lg:border-b-0 lg:border-r border-crema/20 shrink-0 overflow-y-auto flex-col p-4 md:p-6`} id="formularios-sidebar">
+      <div className={`${
+        mobileSectionsOpen 
+          ? 'absolute top-[61px] left-0 right-0 z-30 flex max-h-[calc(100vh-8rem)] border-b shadow-lg' 
+          : 'hidden'
+      } lg:relative lg:top-0 lg:z-0 lg:flex lg:max-h-none lg:shadow-none w-full lg:w-72 bg-white lg:border-b-0 lg:border-r border-crema/20 shrink-0 overflow-y-auto flex-col p-4 md:p-6`} id="formularios-sidebar">
         <div className="mb-4">
           <button
             onClick={() => onSelectDac(null)}
@@ -739,6 +726,197 @@ export default function FormulariosView({
                       </select>
                     </div>
                   </div>
+                </div>
+
+                {/* 1.4 Tipo de Tecnología y Datos Especiales */}
+                <div className="space-y-4 pt-4 border-t border-gray-100">
+                  <span className="font-display font-bold text-xs uppercase text-gris-azulado tracking-wider block border-b border-gray-100 pb-1.5">
+                    1.4 Clasificación de Tecnología e Información Especial (Normativa de Cumplimiento)
+                  </span>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-1">
+                      <label className="font-bold text-gray-700 block">Tipo de Tecnología Principal *</label>
+                      <select
+                        value={formData.technologyType}
+                        onChange={(e) => handleChange('technologyType', e.target.value)}
+                        className="w-full px-2.5 py-1.5 border border-crema/30 rounded-sm bg-white focus:outline-none focus:border-cobre font-semibold text-gris-azulado"
+                      >
+                        <option value="Web">Web Application</option>
+                        <option value="Móvil">Aplicación Móvil (iOS / Android)</option>
+                        <option value="Local">Local / Escritorio (On-Premises)</option>
+                        <option value="LLM">Modelo de Lenguaje (LLM / IA Generativa)</option>
+                        <option value="Agente Inteligente">Agente Autónomo Inteligente</option>
+                        <option value="Otro">Otro (Especificar en descripción)</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="font-bold text-gray-700 block">¿Maneja Datos Personales? *</label>
+                      <select
+                        value={formData.hasPersonalData}
+                        onChange={(e) => handleChange('hasPersonalData', e.target.value)}
+                        className="w-full px-2.5 py-1.5 border border-crema/30 rounded-sm bg-white focus:outline-none focus:border-cobre font-semibold text-gris-azulado"
+                      >
+                        <option value="No">No (Solo datos operativos o públicos)</option>
+                        <option value="Sí">Sí (Tratamiento regulado por Ley de Datos Personales)</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="font-bold text-gray-700 block">Ubicación del Almacenamiento *</label>
+                      <select
+                        value={formData.personalDataStorage}
+                        onChange={(e) => handleChange('personalDataStorage', e.target.value)}
+                        className="w-full px-2.5 py-1.5 border border-crema/30 rounded-sm bg-white focus:outline-none focus:border-cobre font-semibold text-gris-azulado"
+                      >
+                        <option value="Cloud">Nube Pública (Azure, AWS, GCP)</option>
+                        <option value="On-Premises">On-Premises Codelco (Data Center)</option>
+                        <option value="Mixto">Híbrido / Mixto</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Condicional: Inteligencia Artificial */}
+                  {(formData.technologyType === 'LLM' || formData.technologyType === 'Agente Inteligente') && (
+                    <div className="p-4 bg-orange-50/50 border border-cobre/25 rounded-sm space-y-3.5 animate-fade-in">
+                      <div className="flex items-center gap-1.5 text-cobre">
+                        <Shield className="w-4 h-4 shrink-0" />
+                        <h5 className="font-extrabold uppercase text-[10px] tracking-wider font-display">
+                          Anexo Regulatorio: Uso de Inteligencia Artificial (IA)
+                        </h5>
+                      </div>
+                      <p className="text-[10px] text-gray-600 leading-normal">
+                        Las directrices de Ciberseguridad Codelco exigen un análisis exhaustivo para tecnologías LLM o Agentes Autónomos. Indique el estado de validación y control de prompts e inputs:
+                      </p>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                        <div className="space-y-1 bg-white p-2.5 border border-crema/20 rounded-xs">
+                          <label className="font-bold text-gray-500 block text-[9px] uppercase">¿Validado Internamente? *</label>
+                          <select
+                            value={formData.useOfAI_validated}
+                            onChange={(e) => handleChange('useOfAI_validated', e.target.value)}
+                            className="w-full bg-transparent border-0 border-b border-gray-200 focus:ring-0 focus:border-cobre font-semibold py-0.5"
+                          >
+                            <option value="No">No / En revisión</option>
+                            <option value="Sí">Sí, aprobado formal</option>
+                            <option value="En gestión">En proceso de gestión</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1 bg-white p-2.5 border border-crema/20 rounded-xs">
+                          <label className="font-bold text-gray-500 block text-[9px] uppercase">Tipo de IA *</label>
+                          <select
+                            value={formData.useOfAI_type}
+                            onChange={(e) => handleChange('useOfAI_type', e.target.value)}
+                            className="w-full bg-transparent border-0 border-b border-gray-200 focus:ring-0 focus:border-cobre font-semibold py-0.5"
+                          >
+                            <option value="IA Generativa (LLM)">IA Generativa (LLM)</option>
+                            <option value="Modelos predictivos">Analítica / Predictiva</option>
+                            <option value="Agente autónomo">Agente Autónomo Inteligente</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1 bg-white p-2.5 border border-crema/20 rounded-xs">
+                          <label className="font-bold text-gray-500 block text-[9px] uppercase">Nivel de Impacto *</label>
+                          <select
+                            value={formData.useOfAI_impact}
+                            onChange={(e) => handleChange('useOfAI_impact', e.target.value)}
+                            className="w-full bg-transparent border-0 border-b border-gray-200 focus:ring-0 focus:border-cobre font-semibold py-0.5"
+                          >
+                            <option value="Apoyo informativo">Apoyo informativo</option>
+                            <option value="Recomendación">Soporte a decisiones (Recomienda)</option>
+                            <option value="Automatización completa">Automatización completa</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1 bg-white p-2.5 border border-crema/20 rounded-xs">
+                          <label className="font-bold text-gray-500 block text-[9px] uppercase">¿Usa Datos Personales? *</label>
+                          <select
+                            value={formData.useOfAI_personalData}
+                            onChange={(e) => handleChange('useOfAI_personalData', e.target.value)}
+                            className="w-full bg-transparent border-0 border-b border-gray-200 focus:ring-0 focus:border-cobre font-semibold py-0.5"
+                          >
+                            <option value="No">No utiliza ni entrena con DP</option>
+                            <option value="Sí">Sí utiliza / anonimizados</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="font-bold text-gray-600">Descripción detallada de la lógica del modelo e inputs cargados:</label>
+                        <textarea
+                          rows={2}
+                          value={formData.useOfAI_desc}
+                          onChange={(e) => handleChange('useOfAI_desc', e.target.value)}
+                          placeholder="Escriba cómo interactúa el sistema con la IA y qué datos de Codelco procesa..."
+                          className="w-full px-2.5 py-1.5 border border-crema/35 rounded-xs bg-white text-[11px] focus:outline-none focus:border-cobre"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Condicional: Datos Personales */}
+                  {formData.hasPersonalData === 'Sí' && (
+                    <div className="p-4 bg-teal-50/50 border border-verde-petroleo/20 rounded-sm space-y-3.5 animate-fade-in">
+                      <div className="flex items-center gap-1.5 text-verde-petroleo">
+                        <ShieldCheck className="w-4.5 h-4.5 shrink-0" />
+                        <h5 className="font-extrabold uppercase text-[10px] tracking-wider font-display">
+                          Anexo Regulatorio: Tratamiento de Datos Personales
+                        </h5>
+                      </div>
+                      <p className="text-[10px] text-gray-600 leading-normal">
+                        Codelco se rige bajo estrictos estándares de protección de datos. Complete la siguiente información sobre el tratamiento de datos sensibles o de identificación:
+                      </p>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1 bg-white p-3 border border-gray-200 rounded-xs">
+                          <label className="font-bold text-gray-500 block text-[9px] uppercase mb-1">Mecanismo de Consentimiento del Titular</label>
+                          <div className="flex gap-4">
+                            {['Sí', 'No', 'No aplica'].map(opt => (
+                              <label key={opt} className="inline-flex items-center cursor-pointer text-[10px]">
+                                <input
+                                  type="radio"
+                                  name="personalDataConsent"
+                                  value={opt}
+                                  checked={formData.personalDataConsent === opt}
+                                  onChange={(e) => handleChange('personalDataConsent', e.target.value)}
+                                  className="w-3.5 h-3.5 text-verde-petroleo border-gray-300 focus:ring-verde-petroleo cursor-pointer"
+                                />
+                                <span className="ml-1.5 font-semibold text-gray-700">{opt}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="space-y-1 bg-white p-3 border border-gray-200 rounded-xs">
+                          <label className="font-bold text-gray-500 block text-[9px] uppercase mb-1">Mapeo de Datos Personales a Tratar</label>
+                          <div className="grid grid-cols-2 gap-2 text-[10px]">
+                            {['Identificación (Nombre, Correo)', 'RUT / ID laboral', 'Firma y Huella', 'Datos Financieros'].map((cat) => {
+                              const list = formData.personalDataCategory || [];
+                              const checked = list.includes(cat);
+                              return (
+                                <label key={cat} className="inline-flex items-center cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={checked}
+                                    onChange={() => {
+                                      const newList = checked 
+                                        ? list.filter((item: string) => item !== cat)
+                                        : [...list, cat];
+                                      handleChange('personalDataCategory', newList);
+                                    }}
+                                    className="w-3.5 h-3.5 rounded-xs border-gray-300 text-verde-petroleo focus:ring-verde-petroleo cursor-pointer"
+                                  />
+                                  <span className="ml-1.5 text-gray-600 truncate">{cat}</span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1823,244 +2001,919 @@ export default function FormulariosView({
 
           {activeSection === '8' && (
             <div className="bg-white border border-crema/20 rounded-sm p-6 md:p-8 shadow-xs space-y-6">
-              <div className="border-b border-gray-100 pb-3 flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-bold text-cobre font-display uppercase tracking-wider flex items-center">
-                    <Briefcase className="w-5 h-5 mr-2 text-cobre" />
-                    8. Resolución y Veredicto Arquitectura
-                  </h3>
-                  <p className="text-[10px] text-gray-400 font-sans mt-0.5">
-                    Evaluación final del Revisor de Ciberseguridad de Codelco y sellado técnico.
-                  </p>
+              {/* VISIBILITY ROLE CHECK BANNER */}
+              {!['RESP_GESTION', 'ADMIN'].includes(currentRole) ? (
+                <div className="p-3 bg-amber-50/75 border border-amber-200 rounded-sm text-xs leading-relaxed flex gap-3">
+                  <Lock className="w-5 h-5 text-oro shrink-0 mt-0.5" />
+                  <div>
+                    <strong className="text-oro uppercase font-bold">Modo de Solo Lectura</strong>
+                    <p className="text-gray-600 mt-0.5">
+                      Usted está visualizando este expediente de sello en modo de solo lectura según las directrices de acceso de Codelco. Solo el <strong>Responsable de Gestión de Evaluación (Ciberseguridad)</strong> y el <strong>Administrador</strong> tienen privilegios para editar puntajes, observaciones o emitir la resolución final.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-3 bg-emerald-50/75 border border-emerald-200 rounded-sm text-xs leading-relaxed flex gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-verde-petroleo shrink-0 mt-0.5" />
+                  <div>
+                    <strong className="text-verde-petroleo uppercase font-bold">Control de Edición Activo</strong>
+                    <p className="text-gray-600 mt-0.5">
+                      Usted posee privilegios de <strong>Auditor de Ciberseguridad Codelco</strong>. Puede parametrizar la ejecución de los servicios, redefinir observaciones individuales, registrar la Carta de Riesgo o Excepción y emitir el Sello oficial definitivo.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* SPREADSHEET HEADERS (CODELCO SPREADSHEET MOCK) */}
+              <div className="border border-gray-300 rounded-sm overflow-hidden font-sans">
+                {/* TOP SPREADSHEET DECORATIVE BAR */}
+                <div className="bg-gray-100 px-3 py-1.5 border-b border-gray-300 flex justify-between items-center text-[10px] text-gray-500 font-bold">
+                  <span>VISTA DE HOJA EXCEL: 8. RESOLUCIÓN DE SELLO</span>
+                  <span className="text-cobre">PROYECTO 202604 — CODELCO × IBM</span>
+                </div>
+
+                {/* SPREADSHEET MAIN CORPORATE GRID */}
+                <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-gray-300 bg-white">
+                  {/* CODELCO LOGO */}
+                  <div className="p-4 flex flex-col items-center justify-center bg-gray-50/50 min-h-[90px]">
+                    <div className="flex items-center space-x-1.5">
+                      <div className="w-6 h-6 rounded-full bg-cobre flex items-center justify-center text-white font-extrabold text-xs shadow-sm">
+                        C
+                      </div>
+                      <span className="font-display font-extrabold text-sm text-gray-800 tracking-wider">CODELCO</span>
+                    </div>
+                    <span className="text-[8px] font-bold text-gray-400 mt-1 uppercase tracking-widest">Sello Ciberseguridad</span>
+                  </div>
+
+                  {/* TITLE AREA */}
+                  <div className="p-4 md:col-span-2 flex flex-col items-center justify-center text-center">
+                    <span className="font-extrabold text-[10px] text-gray-500 uppercase tracking-widest">
+                      GERENCIA CORPORATIVA DE CIBERSEGURIDAD Y APLICACIONES DEL NEGOCIO
+                    </span>
+                    <h4 className="font-display font-extrabold text-xs text-cobre uppercase tracking-wide mt-1">
+                      Resultado de Evaluación "Sello de Ciberseguridad"
+                    </h4>
+                  </div>
+
+                  {/* RIGHTS & CONFIDENTIALITY */}
+                  <div className="p-4 flex flex-col justify-center items-center bg-red-50/30 text-center min-h-[90px]">
+                    <div className="flex items-center justify-center space-x-1 mb-1">
+                      <span className="w-5 h-5 rounded-full bg-red-600 text-white font-extrabold text-xs flex items-center justify-center shadow-xs">C</span>
+                      <span className="text-[9px] font-extrabold text-red-700 tracking-tight">CONFIDENCIAL</span>
+                    </div>
+                    <span className="text-[8px] font-bold text-gray-500 uppercase leading-normal">
+                      PROPIEDAD DE CODELCO
+                    </span>
+                    <span className="mt-1.5 px-2 py-0.5 bg-teal-50 border border-teal-200 rounded-sm text-[8px] font-bold text-teal-800 uppercase tracking-wider">
+                      Riesgo Tecnológico
+                    </span>
+                  </div>
+                </div>
+
+                {/* RESUMEN DE ALCANCE TABLE GRID */}
+                <div className="bg-gray-55/70 border-t border-b border-gray-300 py-1 px-3">
+                  <span className="font-extrabold text-[9px] text-gray-600 uppercase tracking-wider">
+                    Resumen de Alcance del Expediente
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-300 bg-white text-[11px]">
+                  {/* Left Column */}
+                  <div className="divide-y divide-gray-200">
+                    <div className="grid grid-cols-3 p-2.5">
+                      <span className="font-bold text-gray-500">Nombre Proyecto:</span>
+                      <span className="col-span-2 font-semibold text-gray-800 uppercase">{activeDac.projectName}</span>
+                    </div>
+                    <div className="grid grid-cols-3 p-2.5">
+                      <span className="font-bold text-gray-500">Marcos Evaluados:</span>
+                      <span className="col-span-2 font-semibold text-gray-700">
+                        {formData.technologyType === 'LLM' || formData.technologyType === 'Agente Inteligente' 
+                          ? 'ISO 27001, Marcos Básicos CIS, IA Generativa y LLM (Normativa Codelco)'
+                          : 'ISO 27001, Controles Básicos CIS, Directiva General de Seguridad'}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 p-2.5">
+                      <span className="font-bold text-gray-500">Servicios Ejecutados:</span>
+                      <span className="col-span-2 font-semibold text-gray-700">
+                        {[
+                          formData.execEH !== 'No' ? 'Ethical Hacking' : null,
+                          formData.execEC !== 'No' ? 'Evaluación de Controles' : null,
+                          formData.execDAST !== 'No' ? 'DAST [Acunetix]' : null,
+                          formData.execSCAN !== 'No' ? 'Scan [Tenable]' : null,
+                          formData.execDIAG !== 'No' ? 'Diagrama Arq.' : null
+                        ].filter(Boolean).join(', ') || 'Ninguno seleccionado'}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 p-2.5">
+                      <span className="font-bold text-gray-500">URL / Sitio de Acceso:</span>
+                      <span className="col-span-2 font-semibold text-blue-600 truncate underline cursor-pointer">
+                        {formData.urlAccess || activeDac.companyWebsite || 'https://portal-desarrollo.codelco.cl'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Right Column */}
+                  <div className="divide-y divide-gray-200">
+                    <div className="grid grid-cols-3 p-2.5">
+                      <span className="font-bold text-gray-500">DAC N°:</span>
+                      <span className="col-span-2 font-extrabold text-cobre">{activeDac.id.length === 8 ? `${activeDac.id.slice(0, 4)}-${activeDac.id.slice(4)}` : activeDac.id}</span>
+                    </div>
+                    <div className="grid grid-cols-3 p-2.5">
+                      <span className="font-bold text-gray-500">Jefe de Proyecto:</span>
+                      <span className="col-span-2 font-semibold text-gray-700">{activeDac.jpName}</span>
+                    </div>
+                    <div className="grid grid-cols-3 p-2.5">
+                      <span className="font-bold text-gray-500">Especialista Encargado:</span>
+                      <span className="col-span-2 font-semibold text-gray-700">
+                        {['RESP_GESTION', 'ADMIN'].includes(currentRole) ? (
+                          <input
+                            type="text"
+                            value={formData.especialista || 'Lilibeth Guerrero (Gestor Evaluación)'}
+                            onChange={(e) => handleChange('especialista', e.target.value)}
+                            className="bg-transparent border-0 border-b border-gray-300 focus:ring-0 focus:border-cobre py-0 w-full font-semibold"
+                          />
+                        ) : (
+                          formData.especialista || 'Lilibeth Guerrero (Gestor Evaluación)'
+                        )}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 p-2.5">
+                      <span className="font-bold text-gray-500">División:</span>
+                      <span className="col-span-2 font-semibold text-gray-700">{(activeDac as any).division || 'Casa Matriz'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* SERVICES TABLE GRID (THE REAL RESOLUTION MATRIX FROM SHEET) */}
+                <div className="bg-gray-55/70 border-t border-b border-gray-300 py-1 px-3">
+                  <span className="font-extrabold text-[9px] text-gray-600 uppercase tracking-wider">
+                    Consolidación de Evaluaciones y Calificación Técnica
+                  </span>
+                </div>
+
+                {/* EVALUATION GRID TABLE */}
+                <div className="overflow-x-auto bg-white">
+                  <table className="w-full text-left divide-y divide-gray-300 text-[10.5px]">
+                    <thead className="bg-gray-50 text-gray-500 font-bold uppercase text-[9px] tracking-wider">
+                      <tr>
+                        <th className="p-3 border-r border-gray-200">Servicio Ejecutado</th>
+                        <th className="p-3 border-r border-gray-200">¿Ejecutado?</th>
+                        <th className="p-3 border-r border-gray-200 text-center">Calificación (Pts)</th>
+                        <th className="p-3 border-r border-gray-200 text-center">Estado Sello</th>
+                        <th className="p-3 border-r border-gray-200 text-center">Peso Base</th>
+                        <th className="p-3 border-r border-gray-200 text-center">Peso Aplicable</th>
+                        <th className="p-3 border-r border-gray-200">Observaciones Técnicas</th>
+                        <th className="p-3">Archivo de Informe</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 font-semibold text-gray-700">
+                      {(() => {
+                        // Gather input or default values
+                        const execEH = formData.execEH !== 'No';
+                        const execEC = formData.execEC !== 'No';
+                        const execDAST = formData.execDAST !== 'No';
+                        const execSCAN = formData.execSCAN !== 'No';
+                        const execDIAG = formData.execDIAG !== 'No';
+
+                        const baseWeights = { eh: 50, ec: 10, dast: 15, scan: 15, diag: 10 };
+
+                        let activeBaseSum = 0;
+                        if (execEH) activeBaseSum += baseWeights.eh;
+                        if (execEC) activeBaseSum += baseWeights.ec;
+                        if (execDAST) activeBaseSum += baseWeights.dast;
+                        if (execSCAN) activeBaseSum += baseWeights.scan;
+                        if (execDIAG) activeBaseSum += baseWeights.diag;
+                        if (activeBaseSum === 0) activeBaseSum = 100;
+
+                        const appWeights = {
+                          eh: execEH ? Math.round((baseWeights.eh / activeBaseSum) * 100) : 0,
+                          ec: execEC ? Math.round((baseWeights.ec / activeBaseSum) * 100) : 0,
+                          dast: execDAST ? Math.round((baseWeights.dast / activeBaseSum) * 100) : 0,
+                          scan: execSCAN ? Math.round((baseWeights.scan / activeBaseSum) * 100) : 0,
+                          diag: execDIAG ? Math.round((baseWeights.diag / activeBaseSum) * 100) : 0
+                        };
+
+                        const sumApp = appWeights.eh + appWeights.ec + appWeights.dast + appWeights.scan + appWeights.diag;
+                        if (sumApp > 0 && sumApp !== 100) {
+                          const diff = 100 - sumApp;
+                          if (execEH) appWeights.eh += diff;
+                          else if (execDAST) appWeights.dast += diff;
+                          else if (execSCAN) appWeights.scan += diff;
+                          else if (execDIAG) appWeights.diag += diff;
+                          else if (execEC) appWeights.ec += diff;
+                        }
+
+                        // EH Score
+                        const scoreEH = formData.scoreEH !== undefined ? formData.scoreEH : 80;
+                        const stateEH = scoreEH >= 90 ? 'VERDE' : scoreEH >= 70 ? 'AMARILLO' : 'ROJO';
+
+                        // EC Score automatically derived from MFA & Encryption in Repose
+                        const scoreEC = (formData.encryptionRepose === 'Sí' && formData.mfaEnabled === 'Sí') ? 100 :
+                                        (formData.encryptionRepose === 'No' && formData.mfaEnabled === 'No') ? 0 : 50;
+                        const stateEC = scoreEC === 100 ? 'VERDE' : scoreEC === 50 ? 'AMARILLO' : 'ROJO';
+
+                        // DAST Score
+                        const scoreDAST = formData.scoreDAST !== undefined ? formData.scoreDAST : 90;
+                        const stateDAST = scoreDAST >= 90 ? 'VERDE' : scoreDAST >= 70 ? 'AMARILLO' : 'ROJO';
+
+                        // SCAN Score
+                        const scoreSCAN = formData.scoreSCAN !== undefined ? formData.scoreSCAN : 85;
+                        const stateSCAN = scoreSCAN >= 90 ? 'VERDE' : scoreSCAN >= 70 ? 'AMARILLO' : 'ROJO';
+
+                        // DIAG Score based on architecture evaluation
+                        const scoreDIAG = formData.architectureEvaluation === 'Verde' ? 100 : 50;
+                        const stateDIAG = scoreDIAG === 100 ? 'VERDE' : 'AMARILLO';
+
+                        // Final rating score calculation
+                        const finalScore = Math.round(
+                          (execEH ? scoreEH * (appWeights.eh / 100) : 0) +
+                          (execEC ? scoreEC * (appWeights.ec / 100) : 0) +
+                          (execDAST ? scoreDAST * (appWeights.dast / 100) : 0) +
+                          (execSCAN ? scoreSCAN * (appWeights.scan / 100) : 0) +
+                          (execDIAG ? scoreDIAG * (appWeights.diag / 100) : 0)
+                        );
+
+                        // Determine seal
+                        let seal: 'Verde' | 'Amarillo' | 'Rojo' = 'Rojo';
+                        let conclTitle = 'Sello Rojo (Incumplimiento Crítico / No Autorizado)';
+                        let conclDesc = 'El puntaje acumulado o el incumplimiento de controles críticos obligatorios (MFA o Cifrado de datos) no permiten autorizar la salida a producción. Se requiere corrección obligatoria inmediata.';
+
+                        if (finalScore >= 90) {
+                          if (scoreEC === 0) {
+                            seal = 'Amarillo';
+                            conclTitle = 'Sello Amarillo (Autorizado con Seguimiento por Excepción)';
+                            conclDesc = 'El puntaje ponderado es superior a 90, pero el dominio de Controles de Seguridad (EC) está penalizado en ROJO debido a la falta de mecanismos críticos de MFA o Cifrado en Reposo. Se autoriza la salida condicional sujeta a firma de Carta de Riesgo.';
+                          } else {
+                            seal = 'Verde';
+                            conclTitle = 'Sello Verde (Cumplimiento de Oro)';
+                            conclDesc = 'Los resultados consolidados permiten concluir que el bloque evaluado cumple satisfactoriamente con los criterios de ciberseguridad corporativos definidos, sin identificarse riesgos relevantes para el paso a producción.';
+                          }
+                        } else if (finalScore >= 70) {
+                          seal = 'Amarillo';
+                          conclTitle = 'Sello Amarillo (Cumplimiento de Plata)';
+                          conclDesc = 'El sistema presenta un cumplimiento parcial aceptable. Se autoriza la salida temporal sujeta a un plan de acción para la mitigación de brechas medianas dentro de los plazos estipulados por SLA.';
+                        }
+
+                        const renderBadge = (state: string) => {
+                          if (state === 'VERDE') return <span className="px-2 py-0.5 rounded-sm bg-emerald-50 text-verde-petroleo text-[9px] font-bold border border-emerald-200">🟢 VERDE</span>;
+                          if (state === 'AMARILLO') return <span className="px-2 py-0.5 rounded-sm bg-amber-50 text-oro text-[9px] font-bold border border-amber-200">🟡 AMARILLO</span>;
+                          return <span className="px-2 py-0.5 rounded-sm bg-red-50 text-granate text-[9px] font-bold border border-red-200">🔴 ROJO</span>;
+                        };
+
+                        return (
+                          <>
+                            {/* Row 1: Ethical Hacking */}
+                            <tr className={execEH ? '' : 'opacity-45 bg-gray-50/50'}>
+                              <td className="p-3 border-r border-gray-200 font-bold text-gray-800">Ethical Hacking</td>
+                              <td className="p-3 border-r border-gray-200 text-center">
+                                {['RESP_GESTION', 'ADMIN'].includes(currentRole) ? (
+                                  <select
+                                    value={formData.execEH || 'Sí'}
+                                    onChange={(e) => handleChange('execEH', e.target.value)}
+                                    className="bg-transparent border border-gray-200 rounded-sm py-0.5 px-1 focus:ring-0 text-[10px]"
+                                  >
+                                    <option value="Sí">Sí</option>
+                                    <option value="No">No</option>
+                                  </select>
+                                ) : (
+                                  formData.execEH || 'Sí'
+                                )}
+                              </td>
+                              <td className="p-3 border-r border-gray-200 text-center">
+                                {execEH && ['RESP_GESTION', 'ADMIN'].includes(currentRole) ? (
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    value={scoreEH}
+                                    onChange={(e) => handleChange('scoreEH', parseInt(e.target.value) || 0)}
+                                    className="w-12 text-center bg-transparent border-0 border-b border-gray-300 focus:ring-0 focus:border-cobre py-0 font-bold"
+                                  />
+                                ) : (
+                                  execEH ? scoreEH : 'N/A'
+                                )}
+                              </td>
+                              <td className="p-3 border-r border-gray-200 text-center">
+                                {execEH ? renderBadge(stateEH) : 'N/A'}
+                              </td>
+                              <td className="p-3 border-r border-gray-200 text-center text-gray-500">50%</td>
+                              <td className="p-3 border-r border-gray-200 text-center text-gray-700 font-bold">{appWeights.eh}%</td>
+                              <td className="p-3 border-r border-gray-200">
+                                {['RESP_GESTION', 'ADMIN'].includes(currentRole) ? (
+                                  <input
+                                    type="text"
+                                    value={formData.obsEH || 'Ethical Hacking ejecutado satisfactoriamente sobre la infraestructura expuesta.'}
+                                    onChange={(e) => handleChange('obsEH', e.target.value)}
+                                    className="bg-transparent border-0 border-b border-gray-300 focus:ring-0 focus:border-cobre py-0 w-full text-[10px]"
+                                  />
+                                ) : (
+                                  formData.obsEH || 'Ethical Hacking ejecutado satisfactoriamente sobre la infraestructura expuesta.'
+                                )}
+                              </td>
+                              <td className="p-3">
+                                {['RESP_GESTION', 'ADMIN'].includes(currentRole) ? (
+                                  <input
+                                    type="text"
+                                    value={formData.fileEH || 'informe_eh_v1.2.pdf'}
+                                    onChange={(e) => handleChange('fileEH', e.target.value)}
+                                    className="bg-transparent border-0 border-b border-gray-300 focus:ring-0 focus:border-cobre py-0 w-full text-[10px]"
+                                  />
+                                ) : (
+                                  <span className="text-blue-600 underline cursor-pointer">{formData.fileEH || 'informe_eh_v1.2.pdf'}</span>
+                                )}
+                              </td>
+                            </tr>
+
+                            {/* Row 2: Evaluación de Controles */}
+                            <tr className={execEC ? '' : 'opacity-45 bg-gray-50/50'}>
+                              <td className="p-3 border-r border-gray-200 font-bold text-gray-800">Evaluación de Controles</td>
+                              <td className="p-3 border-r border-gray-200 text-center">
+                                {['RESP_GESTION', 'ADMIN'].includes(currentRole) ? (
+                                  <select
+                                    value={formData.execEC || 'Sí'}
+                                    onChange={(e) => handleChange('execEC', e.target.value)}
+                                    className="bg-transparent border border-gray-200 rounded-sm py-0.5 px-1 focus:ring-0 text-[10px]"
+                                  >
+                                    <option value="Sí">Sí</option>
+                                    <option value="No">No</option>
+                                  </select>
+                                ) : (
+                                  formData.execEC || 'Sí'
+                                )}
+                              </td>
+                              <td className="p-3 border-r border-gray-200 text-center font-bold">
+                                {execEC ? scoreEC : 'N/A'}
+                              </td>
+                              <td className="p-3 border-r border-gray-200 text-center">
+                                {execEC ? renderBadge(stateEC) : 'N/A'}
+                              </td>
+                              <td className="p-3 border-r border-gray-200 text-center text-gray-500">10%</td>
+                              <td className="p-3 border-r border-gray-200 text-center text-gray-700 font-bold">{appWeights.ec}%</td>
+                              <td className="p-3 border-r border-gray-200">
+                                {['RESP_GESTION', 'ADMIN'].includes(currentRole) ? (
+                                  <input
+                                    type="text"
+                                    value={formData.obsEC || 'Controles básicos validados mediante autoevaluación y evidencias de soporte.'}
+                                    onChange={(e) => handleChange('obsEC', e.target.value)}
+                                    className="bg-transparent border-0 border-b border-gray-300 focus:ring-0 focus:border-cobre py-0 w-full text-[10px]"
+                                  />
+                                ) : (
+                                  formData.obsEC || 'Controles básicos validados mediante autoevaluación y evidencias de soporte.'
+                                )}
+                              </td>
+                              <td className="p-3">
+                                {['RESP_GESTION', 'ADMIN'].includes(currentRole) ? (
+                                  <input
+                                    type="text"
+                                    value={formData.fileEC || 'evidencias_mfa_cifrado.zip'}
+                                    onChange={(e) => handleChange('fileEC', e.target.value)}
+                                    className="bg-transparent border-0 border-b border-gray-300 focus:ring-0 focus:border-cobre py-0 w-full text-[10px]"
+                                  />
+                                ) : (
+                                  <span className="text-blue-600 underline cursor-pointer">{formData.fileEC || 'evidencias_mfa_cifrado.zip'}</span>
+                                )}
+                              </td>
+                            </tr>
+
+                            {/* Row 3: DAST [Acunetix] */}
+                            <tr className={execDAST ? '' : 'opacity-45 bg-gray-50/50'}>
+                              <td className="p-3 border-r border-gray-200 font-bold text-gray-800">DAST [Acunetix]</td>
+                              <td className="p-3 border-r border-gray-200 text-center">
+                                {['RESP_GESTION', 'ADMIN'].includes(currentRole) ? (
+                                  <select
+                                    value={formData.execDAST || 'Sí'}
+                                    onChange={(e) => handleChange('execDAST', e.target.value)}
+                                    className="bg-transparent border border-gray-200 rounded-sm py-0.5 px-1 focus:ring-0 text-[10px]"
+                                  >
+                                    <option value="Sí">Sí</option>
+                                    <option value="No">No</option>
+                                  </select>
+                                ) : (
+                                  formData.execDAST || 'Sí'
+                                )}
+                              </td>
+                              <td className="p-3 border-r border-gray-200 text-center">
+                                {execDAST && ['RESP_GESTION', 'ADMIN'].includes(currentRole) ? (
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    value={scoreDAST}
+                                    onChange={(e) => handleChange('scoreDAST', parseInt(e.target.value) || 0)}
+                                    className="w-12 text-center bg-transparent border-0 border-b border-gray-300 focus:ring-0 focus:border-cobre py-0 font-bold"
+                                  />
+                                ) : (
+                                  execDAST ? scoreDAST : 'N/A'
+                                )}
+                              </td>
+                              <td className="p-3 border-r border-gray-200 text-center">
+                                {execDAST ? renderBadge(stateDAST) : 'N/A'}
+                              </td>
+                              <td className="p-3 border-r border-gray-200 text-center text-gray-500">15%</td>
+                              <td className="p-3 border-r border-gray-200 text-center text-gray-700 font-bold">{appWeights.dast}%</td>
+                              <td className="p-3 border-r border-gray-200">
+                                {['RESP_GESTION', 'ADMIN'].includes(currentRole) ? (
+                                  <input
+                                    type="text"
+                                    value={formData.obsDAST || 'DAST ejecutado mediante Acunetix. No se encontraron brechas críticas de inyección.'}
+                                    onChange={(e) => handleChange('obsDAST', e.target.value)}
+                                    className="bg-transparent border-0 border-b border-gray-300 focus:ring-0 focus:border-cobre py-0 w-full text-[10px]"
+                                  />
+                                ) : (
+                                  formData.obsDAST || 'DAST ejecutado mediante Acunetix. No se encontraron brechas críticas de inyección.'
+                                )}
+                              </td>
+                              <td className="p-3">
+                                {['RESP_GESTION', 'ADMIN'].includes(currentRole) ? (
+                                  <input
+                                    type="text"
+                                    value={formData.fileDAST || 'reporte_acunetix_completo.pdf'}
+                                    onChange={(e) => handleChange('fileDAST', e.target.value)}
+                                    className="bg-transparent border-0 border-b border-gray-300 focus:ring-0 focus:border-cobre py-0 w-full text-[10px]"
+                                  />
+                                ) : (
+                                  <span className="text-blue-600 underline cursor-pointer">{formData.fileDAST || 'reporte_acunetix_completo.pdf'}</span>
+                                )}
+                              </td>
+                            </tr>
+
+                            {/* Row 4: Scan [Tenable] */}
+                            <tr className={execSCAN ? '' : 'opacity-45 bg-gray-50/50'}>
+                              <td className="p-3 border-r border-gray-200 font-bold text-gray-800">Scan [Tenable]</td>
+                              <td className="p-3 border-r border-gray-200 text-center">
+                                {['RESP_GESTION', 'ADMIN'].includes(currentRole) ? (
+                                  <select
+                                    value={formData.execSCAN || 'Sí'}
+                                    onChange={(e) => handleChange('execSCAN', e.target.value)}
+                                    className="bg-transparent border border-gray-200 rounded-sm py-0.5 px-1 focus:ring-0 text-[10px]"
+                                  >
+                                    <option value="Sí">Sí</option>
+                                    <option value="No">No</option>
+                                  </select>
+                                ) : (
+                                  formData.execSCAN || 'Sí'
+                                )}
+                              </td>
+                              <td className="p-3 border-r border-gray-200 text-center">
+                                {execSCAN && ['RESP_GESTION', 'ADMIN'].includes(currentRole) ? (
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    value={scoreSCAN}
+                                    onChange={(e) => handleChange('scoreSCAN', parseInt(e.target.value) || 0)}
+                                    className="w-12 text-center bg-transparent border-0 border-b border-gray-300 focus:ring-0 focus:border-cobre py-0 font-bold"
+                                  />
+                                ) : (
+                                  execSCAN ? scoreSCAN : 'N/A'
+                                )}
+                              </td>
+                              <td className="p-3 border-r border-gray-200 text-center">
+                                {execSCAN ? renderBadge(stateSCAN) : 'N/A'}
+                              </td>
+                              <td className="p-3 border-r border-gray-200 text-center text-gray-500">15%</td>
+                              <td className="p-3 border-r border-gray-200 text-center text-gray-700 font-bold">{appWeights.scan}%</td>
+                              <td className="p-3 border-r border-gray-200">
+                                {['RESP_GESTION', 'ADMIN'].includes(currentRole) ? (
+                                  <input
+                                    type="text"
+                                    value={formData.obsSCAN || 'Análisis de vulnerabilidades Tenable ejecutado. Dos brechas medias identificadas.'}
+                                    onChange={(e) => handleChange('obsSCAN', e.target.value)}
+                                    className="bg-transparent border-0 border-b border-gray-300 focus:ring-0 focus:border-cobre py-0 w-full text-[10px]"
+                                  />
+                                ) : (
+                                  formData.obsSCAN || 'Análisis de vulnerabilidades Tenable ejecutado. Dos brechas medias identificadas.'
+                                )}
+                              </td>
+                              <td className="p-3">
+                                {['RESP_GESTION', 'ADMIN'].includes(currentRole) ? (
+                                  <input
+                                    type="text"
+                                    value={formData.fileSCAN || 'escaneo_tenable_nessus.pdf'}
+                                    onChange={(e) => handleChange('fileSCAN', e.target.value)}
+                                    className="bg-transparent border-0 border-b border-gray-300 focus:ring-0 focus:border-cobre py-0 w-full text-[10px]"
+                                  />
+                                ) : (
+                                  <span className="text-blue-600 underline cursor-pointer">{formData.fileSCAN || 'escaneo_tenable_nessus.pdf'}</span>
+                                )}
+                              </td>
+                            </tr>
+
+                            {/* Row 5: Diagrama de Arq. De Seguridad */}
+                            <tr className={execDIAG ? '' : 'opacity-45 bg-gray-50/50'}>
+                              <td className="p-3 border-r border-gray-200 font-bold text-gray-800">Diagrama de Arq. De Seguridad</td>
+                              <td className="p-3 border-r border-gray-200 text-center">
+                                {['RESP_GESTION', 'ADMIN'].includes(currentRole) ? (
+                                  <select
+                                    value={formData.execDIAG || 'Sí'}
+                                    onChange={(e) => handleChange('execDIAG', e.target.value)}
+                                    className="bg-transparent border border-gray-200 rounded-sm py-0.5 px-1 focus:ring-0 text-[10px]"
+                                  >
+                                    <option value="Sí">Sí</option>
+                                    <option value="No">No</option>
+                                  </select>
+                                ) : (
+                                  formData.execDIAG || 'Sí'
+                                )}
+                              </td>
+                              <td className="p-3 border-r border-gray-200 text-center font-bold">
+                                {execDIAG ? scoreDIAG : 'N/A'}
+                              </td>
+                              <td className="p-3 border-r border-gray-200 text-center">
+                                {execDIAG ? renderBadge(stateDIAG) : 'N/A'}
+                              </td>
+                              <td className="p-3 border-r border-gray-200 text-center text-gray-500">10%</td>
+                              <td className="p-3 border-r border-gray-200 text-center text-gray-700 font-bold">{appWeights.diag}%</td>
+                              <td className="p-3 border-r border-gray-200">
+                                {['RESP_GESTION', 'ADMIN'].includes(currentRole) ? (
+                                  <input
+                                    type="text"
+                                    value={formData.obsDIAG || 'Diagrama de arquitectura validado por el especialista de ciberseguridad.'}
+                                    onChange={(e) => handleChange('obsDIAG', e.target.value)}
+                                    className="bg-transparent border-0 border-b border-gray-300 focus:ring-0 focus:border-cobre py-0 w-full text-[10px]"
+                                  />
+                                ) : (
+                                  formData.obsDIAG || 'Diagrama de arquitectura validado por el especialista de ciberseguridad.'
+                                )}
+                              </td>
+                              <td className="p-3">
+                                {['RESP_GESTION', 'ADMIN'].includes(currentRole) ? (
+                                  <input
+                                    type="text"
+                                    value={formData.fileDIAG || 'diagrama_aprobado_firmado.pdf'}
+                                    onChange={(e) => handleChange('fileDIAG', e.target.value)}
+                                    className="bg-transparent border-0 border-b border-gray-300 focus:ring-0 focus:border-cobre py-0 w-full text-[10px]"
+                                  />
+                                ) : (
+                                  <span className="text-blue-600 underline cursor-pointer">{formData.fileDIAG || 'diagrama_aprobado_firmado.pdf'}</span>
+                                )}
+                              </td>
+                            </tr>
+
+                            {/* TOTAL SCORE SUMMARY ROW */}
+                            <tr className="bg-gray-100 font-bold border-t border-gray-300">
+                              <td colSpan={2} className="p-3 border-r border-gray-200 text-right">CALIFICACIÓN FINAL CONSOLIDADA:</td>
+                              <td className="p-3 border-r border-gray-200 text-center text-cobre text-sm font-extrabold">{finalScore} / 100</td>
+                              <td className="p-3 border-r border-gray-200 text-center">
+                                <span className={`px-2.5 py-1 rounded-sm text-[10px] font-extrabold ${
+                                  seal === 'Verde' ? 'bg-emerald-100 text-verde-petroleo border border-emerald-300' :
+                                  seal === 'Amarillo' ? 'bg-amber-100 text-oro border border-amber-300' :
+                                  'bg-red-100 text-granate border border-red-300'
+                                }`}>
+                                  SELLO {seal.toUpperCase()}
+                                </span>
+                              </td>
+                              <td className="p-3 border-r border-gray-200 text-center">100%</td>
+                              <td className="p-3 border-r border-gray-200 text-center">100%</td>
+                              <td colSpan={2} className="p-3 text-[10px] text-gray-500 font-medium">
+                                Promedio ponderado de los dominios técnicos ejecutados.
+                              </td>
+                            </tr>
+                          </>
+                        );
+                      })()}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* RESOLUTION CONCLUSION AND SEAL VISUAL EMBLEM (THE SPREADSHEET LOOK) */}
+                <div className="bg-gray-55/70 border-t border-b border-gray-300 py-1 px-3">
+                  <span className="font-extrabold text-[9px] text-gray-600 uppercase tracking-wider">
+                    Veredicto de Ciberseguridad y Sello Otorgado
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-300 bg-white p-6 gap-6 md:gap-0 items-center">
+                  {/* Left block: Conclusion statement */}
+                  <div className="md:col-span-2 space-y-3.5 pr-0 md:pr-6">
+                    {(() => {
+                      // Score EH
+                      const scoreEH = formData.scoreEH !== undefined ? formData.scoreEH : 80;
+                      const scoreDAST = formData.scoreDAST !== undefined ? formData.scoreDAST : 90;
+                      const scoreSCAN = formData.scoreSCAN !== undefined ? formData.scoreSCAN : 85;
+                      const scoreDIAG = formData.architectureEvaluation === 'Verde' ? 100 : 50;
+                      const scoreEC = (formData.encryptionRepose === 'Sí' && formData.mfaEnabled === 'Sí') ? 100 :
+                                      (formData.encryptionRepose === 'No' && formData.mfaEnabled === 'No') ? 0 : 50;
+
+                      const execEH = formData.execEH !== 'No';
+                      const execEC = formData.execEC !== 'No';
+                      const execDAST = formData.execDAST !== 'No';
+                      const execSCAN = formData.execSCAN !== 'No';
+                      const execDIAG = formData.execDIAG !== 'No';
+
+                      const baseWeights = { eh: 50, ec: 10, dast: 15, scan: 15, diag: 10 };
+                      let activeBaseSum = 0;
+                      if (execEH) activeBaseSum += baseWeights.eh;
+                      if (execEC) activeBaseSum += baseWeights.ec;
+                      if (execDAST) activeBaseSum += baseWeights.dast;
+                      if (execSCAN) activeBaseSum += baseWeights.scan;
+                      if (execDIAG) activeBaseSum += baseWeights.diag;
+                      if (activeBaseSum === 0) activeBaseSum = 100;
+
+                      const appWeights = {
+                        eh: execEH ? Math.round((baseWeights.eh / activeBaseSum) * 100) : 0,
+                        ec: execEC ? Math.round((baseWeights.ec / activeBaseSum) * 100) : 0,
+                        dast: execDAST ? Math.round((baseWeights.dast / activeBaseSum) * 100) : 0,
+                        scan: execSCAN ? Math.round((baseWeights.scan / activeBaseSum) * 100) : 0,
+                        diag: execDIAG ? Math.round((baseWeights.diag / activeBaseSum) * 100) : 0
+                      };
+
+                      const sumApp = appWeights.eh + appWeights.ec + appWeights.dast + appWeights.scan + appWeights.diag;
+                      if (sumApp > 0 && sumApp !== 100) {
+                        const diff = 100 - sumApp;
+                        if (execEH) appWeights.eh += diff;
+                        else if (execDAST) appWeights.dast += diff;
+                        else if (execSCAN) appWeights.scan += diff;
+                        else if (execDIAG) appWeights.diag += diff;
+                        else if (execEC) appWeights.ec += diff;
+                      }
+
+                      const finalScore = Math.round(
+                        (execEH ? scoreEH * (appWeights.eh / 100) : 0) +
+                        (execEC ? scoreEC * (appWeights.ec / 100) : 0) +
+                        (execDAST ? scoreDAST * (appWeights.dast / 100) : 0) +
+                        (execSCAN ? scoreSCAN * (appWeights.scan / 100) : 0) +
+                        (execDIAG ? scoreDIAG * (appWeights.diag / 100) : 0)
+                      );
+
+                      let conclTitle = 'Sello Rojo';
+                      let conclDesc = 'El puntaje acumulado o el incumplimiento de controles críticos obligatorios (MFA o Cifrado de datos) no permiten autorizar la salida a producción. Se requiere corrección obligatoria inmediata.';
+                      let borderStyle = 'border-l-4 border-l-red-500 bg-red-50/10';
+
+                      if (finalScore >= 90) {
+                        if (scoreEC === 0) {
+                          conclTitle = 'Sello Amarillo (Penalizado por Controles Críticos)';
+                          conclDesc = 'El puntaje consolidado es superior a 90, pero el dominio de Controles de Seguridad (EC) está penalizado en ROJO debido a la falta de mecanismos críticos de MFA o Cifrado en Reposo. Se autoriza la salida condicional sujeta a firma de Carta de Riesgo.';
+                          borderStyle = 'border-l-4 border-l-amber-500 bg-amber-50/10';
+                        } else {
+                          conclTitle = 'Sello Verde (Cumplimiento de Oro)';
+                          conclDesc = 'Los resultados consolidados permiten concluir que el bloque evaluado cumple satisfactoriamente con los criterios de ciberseguridad corporativos definidos, sin identificarse riesgos relevantes para el paso a producción.';
+                          borderStyle = 'border-l-4 border-l-emerald-500 bg-emerald-50/10';
+                        }
+                      } else if (finalScore >= 70) {
+                        conclTitle = 'Sello Amarillo (Cumplimiento de Plata)';
+                        conclDesc = 'El sistema presenta un cumplimiento parcial aceptable. Se autoriza la salida temporal sujeta a un plan de acción para la mitigación de brechas medianas dentro de los plazos estipulados por SLA.';
+                        borderStyle = 'border-l-4 border-l-amber-500 bg-amber-50/10';
+                      }
+
+                      return (
+                        <div className={`p-4 rounded-xs ${borderStyle} space-y-1.5`}>
+                          <span className="font-extrabold uppercase text-[9px] text-gray-500 tracking-wider">Declaración de Conclusión:</span>
+                          <h5 className="font-display font-extrabold text-[12px] text-gray-800">{conclTitle}</h5>
+                          <p className="text-[10.5px] text-gray-600 leading-normal leading-relaxed">{conclDesc}</p>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Veredicto fields */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="font-bold text-gray-500 text-[10px] uppercase">Veredicto Oficial del Revisor *</label>
+                        <select
+                          value={formData.verdict}
+                          onChange={(e) => handleChange('verdict', e.target.value)}
+                          disabled={!['RESP_GESTION', 'ADMIN'].includes(currentRole)}
+                          className="w-full px-2.5 py-1.5 border border-gray-200 rounded-sm bg-white focus:outline-none focus:border-cobre disabled:opacity-75 font-semibold text-gris-azulado"
+                        >
+                          <option value="Aprobado">Sello Verde (Aprobado sin brechas)</option>
+                          <option value="Aprobado con Observaciones">Sello Amarillo (Aprobado con Seguimiento/Excepción)</option>
+                          <option value="Rechazado con Brechas">Sello Rojo (No cumple mínimo / Requiere corrección)</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="font-bold text-gray-500 text-[10px] uppercase">Excepciones Autorizadas</label>
+                        <input
+                          type="text"
+                          value={formData.exceptions}
+                          onChange={(e) => handleChange('exceptions', e.target.value)}
+                          disabled={!['RESP_GESTION', 'ADMIN'].includes(currentRole)}
+                          className="w-full px-2.5 py-1.5 border border-gray-200 rounded-sm bg-white focus:outline-none focus:border-cobre disabled:opacity-75 font-semibold text-gris-azulado"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="font-bold text-gray-500 text-[10px] uppercase">Comentarios Técnicos Finales del Auditor Codelco</label>
+                      <textarea
+                        value={formData.auditorComments}
+                        onChange={(e) => handleChange('auditorComments', e.target.value)}
+                        disabled={!['RESP_GESTION', 'ADMIN'].includes(currentRole)}
+                        rows={3}
+                        className="w-full px-2.5 py-1.5 border border-gray-200 rounded-sm bg-white focus:outline-none focus:border-cobre disabled:opacity-75 text-[11px]"
+                        placeholder="Ingrese comentarios finales de auditoría y condiciones para producción..."
+                      />
+                    </div>
+                  </div>
+
+                  {/* Right block: Real Visual circular Badge Emblem Seal */}
+                  <div className="flex flex-col items-center justify-center pl-0 md:pl-6">
+                    {(() => {
+                      const scoreEH = formData.scoreEH !== undefined ? formData.scoreEH : 80;
+                      const scoreDAST = formData.scoreDAST !== undefined ? formData.scoreDAST : 90;
+                      const scoreSCAN = formData.scoreSCAN !== undefined ? formData.scoreSCAN : 85;
+                      const scoreDIAG = formData.architectureEvaluation === 'Verde' ? 100 : 50;
+                      const scoreEC = (formData.encryptionRepose === 'Sí' && formData.mfaEnabled === 'Sí') ? 100 :
+                                      (formData.encryptionRepose === 'No' && formData.mfaEnabled === 'No') ? 0 : 50;
+
+                      const execEH = formData.execEH !== 'No';
+                      const execEC = formData.execEC !== 'No';
+                      const execDAST = formData.execDAST !== 'No';
+                      const execSCAN = formData.execSCAN !== 'No';
+                      const execDIAG = formData.execDIAG !== 'No';
+
+                      const baseWeights = { eh: 50, ec: 10, dast: 15, scan: 15, diag: 10 };
+                      let activeBaseSum = 0;
+                      if (execEH) activeBaseSum += baseWeights.eh;
+                      if (execEC) activeBaseSum += baseWeights.ec;
+                      if (execDAST) activeBaseSum += baseWeights.dast;
+                      if (execSCAN) activeBaseSum += baseWeights.scan;
+                      if (execDIAG) activeBaseSum += baseWeights.diag;
+                      if (activeBaseSum === 0) activeBaseSum = 100;
+
+                      const appWeights = {
+                        eh: execEH ? Math.round((baseWeights.eh / activeBaseSum) * 100) : 0,
+                        ec: execEC ? Math.round((baseWeights.ec / activeBaseSum) * 100) : 0,
+                        dast: execDAST ? Math.round((baseWeights.dast / activeBaseSum) * 100) : 0,
+                        scan: execSCAN ? Math.round((baseWeights.scan / activeBaseSum) * 100) : 0,
+                        diag: execDIAG ? Math.round((baseWeights.diag / activeBaseSum) * 100) : 0
+                      };
+
+                      const sumApp = appWeights.eh + appWeights.ec + appWeights.dast + appWeights.scan + appWeights.diag;
+                      if (sumApp > 0 && sumApp !== 100) {
+                        const diff = 100 - sumApp;
+                        if (execEH) appWeights.eh += diff;
+                        else if (execDAST) appWeights.dast += diff;
+                        else if (execSCAN) appWeights.scan += diff;
+                        else if (execDIAG) appWeights.diag += diff;
+                        else if (execEC) appWeights.ec += diff;
+                      }
+
+                      const finalScore = Math.round(
+                        (execEH ? scoreEH * (appWeights.eh / 100) : 0) +
+                        (execEC ? scoreEC * (appWeights.ec / 100) : 0) +
+                        (execDAST ? scoreDAST * (appWeights.dast / 100) : 0) +
+                        (execSCAN ? scoreSCAN * (appWeights.scan / 100) : 0) +
+                        (execDIAG ? scoreDIAG * (appWeights.diag / 100) : 0)
+                      );
+
+                      let color = '#E11D48'; // Rose-600
+                      let textCurved = 'REQUIERE CORRECCIÓN • NO AUTORIZADO';
+                      let centerLabel = 'BRONCE';
+                      let sealText = 'SELLO ROJO';
+
+                      if (finalScore >= 90 && scoreEC > 0) {
+                        color = '#059669'; // Emerald-600
+                        textCurved = 'CUMPLIMIENTO TOTAL ★ AUTORIZADO ★';
+                        centerLabel = 'CYBER';
+                        sealText = 'SELLO VERDE';
+                      } else if (finalScore >= 70 || (finalScore >= 90 && scoreEC === 0)) {
+                        color = '#D97706'; // Amber-600
+                        textCurved = 'CUMPLIMIENTO PARCIAL ★ AUTORIZADO ★';
+                        centerLabel = 'PLATA';
+                        sealText = 'SELLO AMARILLO';
+                      }
+
+                      return (
+                        <div className="space-y-3 flex flex-col items-center">
+                          {/* Circular Badge Seal Component */}
+                          <div className="relative w-40 h-40 filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:scale-105 transition-transform duration-300">
+                            <svg viewBox="0 0 200 200" className="w-full h-full">
+                              <defs>
+                                <path id="textPath" d="M 100, 100 m -70, 0 a 70,70 0 1,1 140,0 a 70,70 0 1,1 -140,0" />
+                              </defs>
+
+                              {/* Outer Glow / Ring shadow */}
+                              <circle cx="100" cy="100" r="85" fill="none" stroke={color} strokeWidth="1" strokeDasharray="3,3" opacity="0.6" />
+
+                              {/* Outer Circle Ring */}
+                              <circle cx="100" cy="100" r="78" fill="white" stroke={color} strokeWidth="5" />
+                              <circle cx="100" cy="100" r="72" fill="none" stroke={color} strokeWidth="1.5" strokeDasharray="2,2" />
+
+                              {/* Curved text along the circle */}
+                              <text fill={color} fontSize="8.5" fontWeight="bold" letterSpacing="1.2">
+                                <textPath href="#textPath" startOffset="50%" textAnchor="middle">
+                                  {textCurved}
+                                </textPath>
+                              </text>
+
+                              {/* Inner Circle solid ring */}
+                              <circle cx="100" cy="100" r="50" fill={color} />
+                              <circle cx="100" cy="100" r="45" fill="none" stroke="white" strokeWidth="1" opacity="0.4" />
+
+                              {/* Five stars at top inside circle */}
+                              <g fill="white" opacity="0.9" transform="translate(100, 78) scale(0.8)">
+                                <path d="M0,-5 L1.5,-1.5 L5,-1.5 L2,1 L3.5,4.5 L0,2.5 L-3.5,4.5 L-2,1 L-5,-1.5 L-1.5,-1.5 Z" />
+                                <path d="M-12,-3 L-10.5,0.5 L-7,0.5 L-10,3 L-8.5,6.5 L-12,4.5 L-15.5,6.5 L-14,3 L-17,0.5 L-13.5,0.5 Z" />
+                                <path d="M12,-3 L13.5,0.5 L17,0.5 L14,3 L15.5,6.5 L12,4.5 L8.5,6.5 L10,3 L7,0.5 L10.5,0.5 Z" />
+                              </g>
+
+                              {/* Center bold labels */}
+                              <text x="100" y="112" fill="white" fontSize="18" fontWeight="extrabold" textAnchor="middle" letterSpacing="1">
+                                {centerLabel}
+                              </text>
+
+                              <text x="100" y="128" fill="white" fontSize="8" fontWeight="bold" textAnchor="middle" opacity="0.8">
+                                CODELCO
+                              </text>
+
+                              {/* Bottom curved banner overlay on the seal */}
+                              <path d="M 40, 142 Q 100, 168 160, 142" fill="none" stroke={color} strokeWidth="8" strokeLinecap="round" opacity="0.1" />
+                            </svg>
+                          </div>
+                          
+                          <div className="text-center">
+                            <span className="text-[10px] uppercase font-extrabold text-gray-400 block tracking-wider">Resultado Consolidado</span>
+                            <span className="font-display font-extrabold text-sm text-gray-800 uppercase block mt-0.5">{sealText}</span>
+                            <span className="text-[10px] text-gray-500 font-medium block mt-0.5">Puntuación: <strong>{finalScore} pts</strong></span>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+
+                {/* RELATED DOCUMENTS SECTION GRID */}
+                <div className="bg-gray-55/70 border-t border-b border-gray-300 py-1 px-3">
+                  <span className="font-extrabold text-[9px] text-gray-600 uppercase tracking-wider">
+                    Documentos y Salvaguardas Relacionadas (Auditoría)
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-300 bg-white text-[11px]">
+                  <div className="p-3 space-y-3">
+                    <div className="space-y-1">
+                      <label className="font-bold text-gray-500 text-[10px] uppercase block">Carta de Riesgo ID (Para Sello Amarillo/Incumplimientos)</label>
+                      <input
+                        type="text"
+                        value={formData.cartaRiesgoId || 'N/A'}
+                        onChange={(e) => handleChange('cartaRiesgoId', e.target.value)}
+                        disabled={!['RESP_GESTION', 'ADMIN'].includes(currentRole)}
+                        className="w-full px-2 py-1 border border-gray-200 rounded-xs bg-white text-gray-800 font-semibold focus:outline-none focus:border-cobre disabled:opacity-75"
+                        placeholder="Ej: CR-2026-088 o N/A"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="font-bold text-gray-500 text-[10px] uppercase block">Enlace URL a Carta de Riesgo (SharePoint)</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={formData.cartaRiesgoUrl || ''}
+                          onChange={(e) => handleChange('cartaRiesgoUrl', e.target.value)}
+                          disabled={!['RESP_GESTION', 'ADMIN'].includes(currentRole)}
+                          className="flex-1 px-2 py-1 border border-gray-200 rounded-xs bg-white text-blue-600 focus:outline-none focus:border-cobre disabled:opacity-75"
+                          placeholder="https://sharepoint.codelco.cl/riesgos/..."
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-3 space-y-3">
+                    <div className="space-y-1">
+                      <label className="font-bold text-gray-500 text-[10px] uppercase block">N° de Excepción Autorizada (Comité)</label>
+                      <input
+                        type="text"
+                        value={formData.excepcionNo || 'N/A'}
+                        onChange={(e) => handleChange('excepcionNo', e.target.value)}
+                        disabled={!['RESP_GESTION', 'ADMIN'].includes(currentRole)}
+                        className="w-full px-2 py-1 border border-gray-200 rounded-xs bg-white text-gray-800 font-semibold focus:outline-none focus:border-cobre disabled:opacity-75"
+                        placeholder="Ej: EXC-CODELCO-2026-11 o N/A"
+                      />
+                    </div>
+
+                    <div className="p-3 bg-gray-50 border border-gray-200 rounded-xs text-[10px] text-gray-500 leading-relaxed">
+                      <strong className="text-gray-600 uppercase font-bold block mb-1">Nota de Seguridad de Datos:</strong>
+                      La URL de la Carta de Riesgo es confidencial y **NO se imprimirá** ni se incluirá al exportar el DAC completo a formato PDF para auditorías externas, resguardando la integridad referencial y seguridad de la información Codelco.
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-5 font-sans text-xs">
-                {/* CALCULADORA DE SELLO PONDERADO (REGLAS EXCEL HOJA 8) */}
-                <div className="p-5 border border-crema/25 bg-surface-custom/20 rounded-sm space-y-4">
-                  <div className="flex items-center justify-between border-b border-gray-200 pb-2">
-                    <h4 className="font-bold text-gris-azulado text-[11px] uppercase tracking-wider flex items-center">
-                      <ShieldCheck className="w-4 h-4 text-cobre mr-1.5" />
-                      Calculadora Ponderada del Sello de Ciberseguridad (Hoja 8)
-                    </h4>
-                    <span className="text-[10px] text-gray-400 font-sans font-bold">
-                      Directriz Corporativa Codelco
-                    </span>
-                  </div>
-
-                  <p className="text-[10px] text-gray-500 leading-normal">
-                    La puntuación final se calcula de manera ponderada según cinco dominios técnicos clave de auditoría. Si el dominio de <strong>Controles de Seguridad (EC)</strong> resulta en <strong>ROJO</strong> (por incumplimiento de MFA o Cifrado), el Sello resultante <strong>nunca podrá ser ORO</strong>, limitando la calificación máxima a Plata.
-                  </p>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 pt-1">
-                    {/* EH (50%) */}
-                    <div className="space-y-1 p-2.5 bg-white border border-gray-150 rounded-sm">
-                      <span className="text-[10px] font-bold text-gray-400 block uppercase">EH (50%)</span>
-                      <label className="font-semibold text-gray-600 block text-[10px]" title="Ethical Hacking / Pentest">Puntaje Pentest</label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        value={formData.scoreEH}
-                        disabled={currentRole === 'JP'}
-                        onChange={(e) => handleChange('scoreEH', parseInt(e.target.value) || 0)}
-                        className="w-full px-2 py-1 border border-crema/30 rounded-xs font-bold text-center focus:outline-none focus:border-cobre"
-                      />
-                      <span className="text-[9px] text-gray-400 text-center block mt-1">Pond: {((formData.scoreEH || 0) * 0.50).toFixed(1)} pts</span>
-                    </div>
-
-                    {/* EC (10%) */}
-                    <div className="space-y-1 p-2.5 bg-white border border-gray-150 rounded-sm flex flex-col justify-between">
-                      <div>
-                        <span className="text-[10px] font-bold text-gray-400 block uppercase">EC (10%)</span>
-                        <span className="font-semibold text-gray-600 block text-[10px] leading-tight">Autoevaluación</span>
-                      </div>
-                      <div className="text-center font-bold text-[11px] py-1 mt-1">
-                        {formData.encryptionRepose === 'Sí' && formData.mfaEnabled === 'Sí' ? (
-                          <span className="text-verde-petroleo bg-emerald-50 px-1.5 py-0.5 rounded-sm">🟢 VERDE (100)</span>
-                        ) : formData.encryptionRepose === 'No' && formData.mfaEnabled === 'No' ? (
-                          <span className="text-granate bg-red-50 px-1.5 py-0.5 rounded-sm">🔴 ROJO (0)</span>
-                        ) : (
-                          <span className="text-oro bg-amber-50 px-1.5 py-0.5 rounded-sm">🟡 AMARILLO (50)</span>
-                        )}
-                      </div>
-                      <span className="text-[9px] text-gray-400 text-center block mt-1">
-                        Pond: {(
-                          (formData.encryptionRepose === 'Sí' && formData.mfaEnabled === 'Sí' ? 100 :
-                           formData.encryptionRepose === 'No' && formData.mfaEnabled === 'No' ? 0 : 50) * 0.10
-                        ).toFixed(1)} pts
-                      </span>
-                    </div>
-
-                    {/* DAST (15%) */}
-                    <div className="space-y-1 p-2.5 bg-white border border-gray-150 rounded-sm">
-                      <span className="text-[10px] font-bold text-gray-400 block uppercase">DAST (15%)</span>
-                      <label className="font-semibold text-gray-600 block text-[10px]">Análisis Web</label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        value={formData.scoreDAST}
-                        disabled={currentRole === 'JP'}
-                        onChange={(e) => handleChange('scoreDAST', parseInt(e.target.value) || 0)}
-                        className="w-full px-2 py-1 border border-crema/30 rounded-xs font-bold text-center focus:outline-none focus:border-cobre"
-                      />
-                      <span className="text-[9px] text-gray-400 text-center block mt-1">Pond: {((formData.scoreDAST || 0) * 0.15).toFixed(1)} pts</span>
-                    </div>
-
-                    {/* SCAN (15%) */}
-                    <div className="space-y-1 p-2.5 bg-white border border-gray-150 rounded-sm">
-                      <span className="text-[10px] font-bold text-gray-400 block uppercase">SCAN (15%)</span>
-                      <label className="font-semibold text-gray-600 block text-[10px]">Análisis Red</label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        value={formData.scoreSCAN}
-                        disabled={currentRole === 'JP'}
-                        onChange={(e) => handleChange('scoreSCAN', parseInt(e.target.value) || 0)}
-                        className="w-full px-2 py-1 border border-crema/30 rounded-xs font-bold text-center focus:outline-none focus:border-cobre"
-                      />
-                      <span className="text-[9px] text-gray-400 text-center block mt-1">Pond: {((formData.scoreSCAN || 0) * 0.15).toFixed(1)} pts</span>
-                    </div>
-
-                    {/* Diagrama (10%) */}
-                    <div className="space-y-1 p-2.5 bg-white border border-gray-150 rounded-sm flex flex-col justify-between">
-                      <div>
-                        <span className="text-[10px] font-bold text-gray-400 block uppercase">DIAG (10%)</span>
-                        <span className="font-semibold text-gray-600 block text-[10px]">Arq. Red</span>
-                      </div>
-                      <div className="text-center font-bold text-[11px] py-1 mt-1">
-                        {formData.architectureEvaluation === 'Verde' ? (
-                          <span className="text-verde-petroleo bg-emerald-50 px-1.5 py-0.5 rounded-sm">🟢 VERDE (100)</span>
-                        ) : (
-                          <span className="text-oro bg-amber-50 px-1.5 py-0.5 rounded-sm">🟡 AMARIL (50)</span>
-                        )}
-                      </div>
-                      <span className="text-[9px] text-gray-400 text-center block mt-1">
-                        Pond: {((formData.architectureEvaluation === 'Verde' ? 100 : 50) * 0.10).toFixed(1)} pts
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* RESULT CONSOLIDATION CARD */}
-                  {(() => {
-                    const valEH = (formData.scoreEH || 0) * 0.50;
-                    const ecRating = (formData.encryptionRepose === 'Sí' && formData.mfaEnabled === 'Sí' ? 100 :
-                                      formData.encryptionRepose === 'No' && formData.mfaEnabled === 'No' ? 0 : 50);
-                    const valEC = ecRating * 0.10;
-                    const valDAST = (formData.scoreDAST || 0) * 0.15;
-                    const valSCAN = (formData.scoreSCAN || 0) * 0.15;
-                    const valDIAG = (formData.architectureEvaluation === 'Verde' ? 100 : 50) * 0.10;
-                    
-                    const calculatedScore = Math.round(valEH + valEC + valDAST + valSCAN + valDIAG);
-                    
-                    let seal: 'Verde' | 'Amarillo' | 'Rojo' | 'Ninguno' = 'Ninguno';
-                    let label = 'Sin Sello (No cumple mínimo)';
-                    let colorClass = 'bg-red-50 text-granate border-granate/30';
-                    
-                    if (calculatedScore >= 95) {
-                      if (ecRating === 0) {
-                        seal = 'Amarillo';
-                        label = 'Sello Amarillo (Penalizado por Controles Críticos en Rojo)';
-                        colorClass = 'bg-amber-50 text-oro border-oro/30';
-                      } else {
-                        seal = 'Verde';
-                        label = 'Sello Verde (Cumplimiento de Oro)';
-                        colorClass = 'bg-emerald-50 text-verde-petroleo border-verde-petroleo/30';
-                      }
-                    } else if (calculatedScore >= 75) {
-                      seal = 'Amarillo';
-                      label = 'Sello Amarillo (Cumplimiento de Plata)';
-                      colorClass = 'bg-amber-50 text-oro border-oro/30';
-                    } else if (calculatedScore >= 45) {
-                      seal = 'Rojo';
-                      label = 'Sello Rojo (Cumplimiento de Bronce)';
-                      colorClass = 'bg-rose-50 text-granate border-granate/40';
-                    }
-                    
-                    return (
-                      <div className={`p-4 border rounded-sm flex flex-col sm:flex-row items-center justify-between gap-4 ${colorClass}`}>
-                        <div className="flex-1">
-                          <p className="text-[10px] font-bold uppercase tracking-wider">Resultado Ponderado del Sello</p>
-                          <p className="text-sm font-bold font-display mt-0.5">{label}</p>
-                          <p className="text-[10px] opacity-75 mt-0.5">
-                            Puntaje consolidado: <strong>{calculatedScore} de 100 pts</strong> (EH: {valEH.toFixed(1)} + EC: {valEC.toFixed(1)} + DAST: {valDAST.toFixed(1)} + SCAN: {valSCAN.toFixed(1)} + DIAG: {valDIAG.toFixed(1)})
-                          </p>
-                        </div>
-                        {['RESP_GESTION', 'ADMIN'].includes(currentRole) && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              // Save score and seal to the active DAC
-                              onUpdateDacForm(activeDac.id, {
-                                ...formData,
-                                score: calculatedScore,
-                                seal: seal === 'Ninguno' ? undefined : seal,
-                              });
-                              onUpdateDacState(activeDac.id, 'RESULTADO LICITACIÓN APROBADO');
-                              showToast('🏆 Sello de ciberseguridad calculado y certificado de licitación emitido con éxito.');
-                            }}
-                            className="bg-gris-azulado hover:bg-black text-white px-3.5 py-1.5 rounded-sm text-[10px] font-bold uppercase tracking-wider font-display transition-all shrink-0 cursor-pointer shadow-xs"
-                          >
-                            Emitir y Firmar Sello
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })()}
+              {/* CORPORATE DIGITAL SIGNATURE */}
+              <div className="pt-4 border-t border-gray-100 flex items-center space-x-3.5 text-[11px] text-gray-500 font-semibold font-sans bg-gray-50/50 p-4 rounded-xs border border-gray-100">
+                <div className="w-10 h-10 rounded-full bg-cobre/10 text-cobre font-extrabold flex items-center justify-center text-sm shadow-xs border border-cobre/20">
+                  CS
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="font-bold text-gray-600">Veredicto Final Revisor *</label>
-                    <select
-                      value={formData.verdict}
-                      onChange={(e) => handleChange('verdict', e.target.value)}
-                      disabled={currentRole === 'JP'}
-                      className="w-full px-2.5 py-1.5 border border-crema/30 rounded-sm bg-white focus:outline-none focus:border-cobre disabled:opacity-60"
-                    >
-                      <option value="Aprobado">Aprobado (Sello Otorgado sin brechas)</option>
-                      <option value="Aprobado con Observaciones">Aprobado con Observaciones (Habilitación Temporal)</option>
-                      <option value="Rechazado con Brechas">Rechazado con Brechas (Requiere corrección urgente)</option>
-                      <option value="En Evaluación">En Evaluación Documental</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="font-bold text-gray-600">Excepciones Autorizadas</label>
-                    <input
-                      type="text"
-                      value={formData.exceptions}
-                      onChange={(e) => handleChange('exceptions', e.target.value)}
-                      disabled={currentRole === 'JP'}
-                      className="w-full px-2.5 py-1.5 border border-crema/30 rounded-sm bg-white focus:outline-none focus:border-cobre disabled:opacity-60"
-                    />
-                  </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-extrabold text-gray-800 font-display text-[12px]">Firma Electrónica Corporativa Codelco</p>
+                  <p className="text-[10px] text-gray-500 mt-0.5">Sello emitido y validado digitalmente por el Comité de Ciberseguridad Corporativa.</p>
+                  <span className="text-[9.5px] text-teal-700 font-mono font-bold block mt-0.5">HASH_SHA256: 8a92f0dc3e817a02c81e7d83ef30b8cde9f01a88b22eef03b90df7163c9a18d</span>
                 </div>
-
-                <div className="space-y-1.5">
-                  <label className="font-bold text-gray-600">Comentarios Técnicos del Auditor Codelco</label>
-                  <textarea
-                    value={formData.auditorComments}
-                    onChange={(e) => handleChange('auditorComments', e.target.value)}
-                    disabled={currentRole === 'JP'}
-                    rows={4}
-                    className="w-full px-2.5 py-1.5 border border-crema/30 rounded-sm bg-white focus:outline-none focus:border-cobre disabled:opacity-60"
-                  />
-                  {currentRole === 'JP' && (
-                    <span className="text-[9px] text-gray-400 block mt-0.5">※ Estos comentarios son de solo lectura para el Jefe de Proyecto. Solo modificable por Revisores y Auditores.</span>
-                  )}
-                </div>
-
-                <div className="pt-4 border-t border-gray-100 flex items-center space-x-3 text-[10px] text-gray-500 font-medium">
-                  <div className="w-9 h-9 rounded-full bg-gris-azulado/10 text-gris-azulado font-bold flex items-center justify-center text-xs">
-                    CS
-                  </div>
-                  <div>
-                    <p className="font-bold text-gray-700">Comité de Ciberseguridad Corporativo Codelco</p>
-                    <p className="text-[9px]">Aprobación digital registrada el {activeDac.startDate || '21/06/2026'}</p>
-                  </div>
-                </div>
+                {['RESP_GESTION', 'ADMIN'].includes(currentRole) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // Trigger state change
+                      onUpdateDacState(activeDac.id, 'RESULTADO EMITIDO');
+                      showToast('🏆 Sello y resolución firmados con éxito. Se notificó al Jefe de Proyecto y se generó el expediente PDF.');
+                    }}
+                    className="bg-cobre hover:bg-cobre-oscuro text-white px-4 py-2 rounded-sm text-xs font-bold uppercase tracking-wider font-display shrink-0 flex items-center gap-1.5 cursor-pointer shadow-sm focus:outline-none"
+                  >
+                    <Send className="w-4 h-4" />
+                    Emitir y Firmar Sello
+                  </button>
+                )}
               </div>
             </div>
           )}
