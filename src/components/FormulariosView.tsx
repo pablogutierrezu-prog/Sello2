@@ -189,25 +189,23 @@ export default function FormulariosView({
 
   // Sections details precisely matching the sheets tabs of the Excel document
   const sections = useMemo(() => {
-    const isUnlocked = ['RESP_PRESUPUESTO_EY', 'RESP_EVAL_TECNICA_EY', 'RESP_EVAL_DOC_EY', 'ADMIN'].includes(currentRole);
     return [
       { id: '0', label: '0. Inicio', state: 'complete', icon: HelpCircle },
       { id: '1', label: '1. Descripción solicitud', state: 'complete', icon: FileText },
       { id: '2', label: '2. Arquitectura de Seg.', state: 'complete', icon: Server },
       { id: '2.1', label: '2.1 Diagrama de Arq. Seg.', state: 'complete', icon: Network },
       { id: '3', label: '3. Kick-Off', state: 'complete', icon: Calendar },
-      { id: '4', label: '4. Matriz de Decisión', state: isUnlocked ? 'active' : 'locked', locked: isUnlocked ? false : true, icon: isUnlocked ? FileText : Lock },
+      { id: '4', label: '4. Matriz de Decisión', state: 'active', icon: FileText },
       { id: '5', label: '5. Controles de Seguridad', state: 'active', icon: Shield },
       { id: '6', label: '6. Presupuesto Servicio', state: 'pending', icon: DollarSign },
       { id: '6.1', label: '6.1 Presupuesto Retest', state: 'pending', icon: FileSpreadsheet },
-      { id: '7', label: '7. Consideraciones y SLAs', state: isUnlocked ? 'active' : 'locked', locked: isUnlocked ? false : true, icon: isUnlocked ? Clock : Lock },
+      { id: '7', label: '7. Consideraciones y SLAs', state: 'active', icon: Clock },
       { id: '8', label: '8. Resolución', state: 'pending', icon: Briefcase },
       { id: '9', label: '9. Anexos (Sellos)', state: 'pending', icon: Layers }
     ];
-  }, [currentRole]);
+  }, []);
 
-  // Todas las secciones son visibles para todos los roles.
-  // El control de edición vs solo lectura se maneja dentro de cada sección.
+
   const visibleSections = useMemo(() => {
     return sections;
   }, [sections]);
