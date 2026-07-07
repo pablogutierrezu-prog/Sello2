@@ -96,10 +96,10 @@ export default function Header({
         {/* On mobile, show stacked title next to logo, hidden on md/lg since we center it */}
         <div className="md:hidden flex flex-col justify-center min-w-0 shrink-0">
           <h1 className="text-[10px] sm:text-xs font-bold tracking-wider font-display m-0 leading-none uppercase truncate">
-            Sello de
+            SGHC
           </h1>
           <h1 className="text-[10px] sm:text-xs font-bold tracking-wider font-display m-0 leading-tight uppercase truncate text-crema">
-            Ciberseguridad
+            Codelco
           </h1>
         </div>
       </div>
