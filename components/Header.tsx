@@ -107,7 +107,7 @@ export default function Header({
       {/* Centered Title (matches screenshot layout) */}
       <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-center pointer-events-none">
         <h1 className="text-base lg:text-lg font-bold text-white select-none !normal-case tracking-wide">
-          Sello de Ciberseguridad
+          Sistema de Evaluación y Gestión de Hallazgos en Ciberseguridad
         </h1>
       </div>
 
